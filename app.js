@@ -12,7 +12,18 @@ var appEnv = cfenv.getAppEnv();
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var config = null;
-var credentials = null;
+var credentials = 
+{               
+"iotCredentialsIdentifier": "a2g6k39sl6r5",
+"mqtt_host": "o6p61d.messaging.internetofthings.ibmcloud.com",
+"mqtt_u_port": 1883,
+"mqtt_s_port": 8883,
+"http_host": "o6p61d.internetofthings.ibmcloud.com",
+"org": "o6p61d",
+"apiKey": "a-o6p61d-m2o6syd5fx",
+"apiToken": "T3MOoTCbEGpZMCHmev"
+};
+
 if (process.env.VCAP_SERVICES) {
 	config = JSON.parse(process.env.VCAP_SERVICES);
 
@@ -44,6 +55,27 @@ var options = {
 app.get('/credentials', function(req, res) {
 	res.json(basicConfig);
 });
+
+
+//-------
+
+app.get('/data', function(req, res) {
+
+var appClient = new Client.IotfApplication(appClientConfig);
+appClient.connect();
+
+appClient.on("connect", function () {
+appClient.subscribeToDeviceEvents("myDeviceType","device01","+","json");
+
+});
+    
+appClient.on("deviceEvent", function (deviceType, deviceId, eventType, format, payload) {
+	console.log("Device Event from :: "+deviceType+" : "+deviceId+" of event "+eventType+" with payload : " + payload);
+	});
+
+});
+
+//-------
 
 app.get('/iotServiceLink', function(req, res) {
 	var options = {
